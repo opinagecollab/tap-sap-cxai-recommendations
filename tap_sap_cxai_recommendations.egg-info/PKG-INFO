@@ -1,0 +1,11 @@
+Metadata-Version: 1.1
+Name: tap-sap-cxai-recommendations
+Version: 0.1.0
+Summary: Singer.io tap for extracting data
+Home-page: http://singer.io
+Author: SAP and Stitch
+Author-email: UNKNOWN
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3 :: Only

@@ -1,0 +1,4 @@
+
+    [console_scripts]
+    tap-sap-cxai-recommendations=tap_sap_cxai_recommendations:main
+    

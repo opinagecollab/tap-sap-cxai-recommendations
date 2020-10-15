@@ -1,0 +1,24 @@
+
+    {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        },
+        "recommendation_id": {
+          "type": "number"
+        },
+        "item_id": {
+          "type": "string"
+        },
+        "score": {
+          "type": ["null", "number"]
+        }
+      },
+      "required": [
+          "tenant_id",
+          "recommendation_id",
+          "item_id"
+      ],             
+      "additionalProperties": false
+    }
