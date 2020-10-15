@@ -7,7 +7,6 @@ tap_sap_cxai_recommendations/__init__.py
 tap_sap_cxai_recommendations/client.py
 tap_sap_cxai_recommendations/sync.py
 tap_sap_cxai_recommendations/tap_reco.py
-tap_sap_cxai_recommendations/transform.py
 tap_sap_cxai_recommendations.egg-info/PKG-INFO
 tap_sap_cxai_recommendations.egg-info/SOURCES.txt
 tap_sap_cxai_recommendations.egg-info/dependency_links.txt
