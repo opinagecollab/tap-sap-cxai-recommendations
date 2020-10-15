@@ -55,14 +55,13 @@ def discover():
           stream_metadata.append(is_selected)
           stream_key_properties.append('recommendation_id')
           stream_key_properties.append('item_id')
-          stream_key_properties.append('score')
+          stream_key_properties.append('tenant_id')
 
       if schema_name == Record.RECOMMENDATIONS.value:
           stream_metadata.append(is_selected)
           stream_key_properties.append('recommendation_id')
-          stream_key_properties.append('item_id')
-          stream_key_properties.append('user_id')
-          stream_key_properties.append('model')
+          stream_key_properties.append('tenant_id')
+
       catalog_entry = {
             'stream': schema_name,
             'tap_stream_id': schema_name,
@@ -150,7 +149,6 @@ def sync(config, state, catalog):
                 recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)
         for product_score_record in product_score_records:
             singer.write_record(Record.SCORES.value, product_score_record) 
-        break 
 
 @utils.handle_top_exception(LOGGER)
 def main():
