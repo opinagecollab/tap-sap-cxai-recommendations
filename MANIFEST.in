@@ -1,0 +1,2 @@
+include LICENSE
+include tap_sap_cxai_recommendations/schemas/*.json
