@@ -2,6 +2,7 @@ from tap_sap_cxai_recommendations.record.handler.base import BaseHandler
 from tap_sap_cxai_recommendations.record.handler.decorators import Singleton
 import uuid
 import singer
+from datetime import datetime, date
 
 
 
@@ -15,12 +16,14 @@ class RecommendationHandler(BaseHandler):
         return {
             'tenant_id': options.get('tenant_id'),
             #TODO: create a sequence utility to generate these IDs
-            #'recommendation_id': uuid.uuid4(),
-            'recommendation_id':recommendation.get('id'),
             'user_id': recommendation.get('user_id'),
-            'item_id': recommendation.get('item_id'),
+            'sku': recommendation.get('item_id'),
             'model': recommendation.get('model'),
             'model_confidence': recommendation.get('model_confidence'),
             'id': recommendation.get('id'),
-            'context': recommendation.get('context')
-            }
+            'created_date': recommendation.get('created_date'),
+            'context': recommendation.get('context'),
+            'recommendation_id': recommendation.get('user_id')+'|'+recommendation.get('item_id')+'|'+recommendation.get('model'),
+            'insert_update_flag': '1'
+        } 
+            

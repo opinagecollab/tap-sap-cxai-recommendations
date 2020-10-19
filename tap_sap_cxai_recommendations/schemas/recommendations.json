@@ -1,4 +1,4 @@
-
+  
     {
       "type": "object",
       "properties": {
@@ -9,12 +9,12 @@
           "type": ["null","number"]
         },
         "recommendation_id": {
-          "type": "number"
+          "type": "string"
         },
         "user_id": {
           "type": ["null", "string"]
         },
-        "item_id": {
+        "sku": {
           "type": ["null", "string"]
         },
         "context": {
@@ -28,12 +28,11 @@
         },
         "created_date": {
           "type": ["null", "string"],
-          "format": "date-time"
-        }
+          "format":"datetime"
+        },
+        "insert_update_flag": {
+          "type": ["null", "string"]
+        }     
       },
-      "required": [
-          "tenant_id",
-          "recommendation_id"
-      ],
       "additionalProperties": false
     }

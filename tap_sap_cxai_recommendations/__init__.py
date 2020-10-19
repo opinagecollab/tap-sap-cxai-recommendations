@@ -54,7 +54,7 @@ def discover():
       if schema_name == Record.SCORES.value:
           stream_metadata.append(is_selected)
           stream_key_properties.append('recommendation_id')
-          stream_key_properties.append('item_id')
+          stream_key_properties.append('sku')
           stream_key_properties.append('tenant_id')
 
       if schema_name == Record.RECOMMENDATIONS.value:
@@ -102,7 +102,6 @@ def sync(config, state, catalog):
     signal(SIGPIPE,SIG_DFL)
     LOGGER.info('Syncing selected streams')
     selected_stream_ids = get_selected_streams(catalog)
-    timestamp = datetime.now(timezone.utc).isoformat()
     tenant_id = config.get('tenant_id')
     LOGGER.info(selected_stream_ids)
 
@@ -129,8 +128,7 @@ def sync(config, state, catalog):
             LOGGER.info('Model has no recommendations! Skipping ...')
             continue
 
-        recommendations = model_recommendation.get('recommendations')
-        #LOGGER.info('Recommendation: {}',recommendations)
+        recommendations = model_recommendation.get('recommendations')         
         # model recommendation record builder returns a recommendation record, if from
         # which is needed for building corresponding product score records
         recommendation_record = build_record_handler(Record.RECOMMENDATIONS).generate(
@@ -142,12 +140,14 @@ def sync(config, state, catalog):
           singer.write_record(Record.RECOMMENDATIONS.value, recommendation_record)  
         except json.JSONDecodeError as jex:
           LOGGER.error ('JSONDecodeError caught {}', jex)
+        fixed_dict = {"type": "RECORD", "stream": Record.RECOMMENDATIONS.value}
         #TODO: Handle if recommendation_id is null or empty
         recommendation_id = recommendation_record.get('recommendation_id')
         # score builder returns a list of product score records corresponding to recommendation id
         product_score_records = build_record_handler(Record.SCORES).generate(
-                recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)
+                recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
         for product_score_record in product_score_records:
+            LOGGER.info(product_score_record)
             singer.write_record(Record.SCORES.value, product_score_record) 
 
 @utils.handle_top_exception(LOGGER)

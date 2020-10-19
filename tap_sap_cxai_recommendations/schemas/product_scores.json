@@ -6,19 +6,22 @@
           "type": "string"
         },
         "recommendation_id": {
-          "type": "number"
+          "type": "string"
         },
-        "item_id": {
+        "sku": {
           "type": "string"
         },
         "score": {
           "type": ["null", "number"]
+        },
+        "insert_update_flag": {
+          "type": ["null", "string"]
         }
       },
       "required": [
           "tenant_id",
           "recommendation_id",
-          "item_id"
+          "sku"
       ],             
       "additionalProperties": false
     }
