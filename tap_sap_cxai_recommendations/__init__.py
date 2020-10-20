@@ -140,14 +140,12 @@ def sync(config, state, catalog):
           singer.write_record(Record.RECOMMENDATIONS.value, recommendation_record)  
         except json.JSONDecodeError as jex:
           LOGGER.error ('JSONDecodeError caught {}', jex)
-        fixed_dict = {"type": "RECORD", "stream": Record.RECOMMENDATIONS.value}
-        #TODO: Handle if recommendation_id is null or empty
+      
         recommendation_id = recommendation_record.get('recommendation_id')
         # score builder returns a list of product score records corresponding to recommendation id
         product_score_records = build_record_handler(Record.SCORES).generate(
                 recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
         for product_score_record in product_score_records:
-            LOGGER.info(product_score_record)
             singer.write_record(Record.SCORES.value, product_score_record) 
 
 @utils.handle_top_exception(LOGGER)
