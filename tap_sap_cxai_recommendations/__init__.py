@@ -81,6 +81,7 @@ def get_selected_streams(catalog):
     and metadata with a 'selected' entry
     """
     selected_streams = []
+    # catalogJson = json.loads(catalog)
     for stream in catalog['streams']:
         stream_metadata = metadata.to_map(stream['metadata'])
         # stream metadata will have an empty breadcrumb
@@ -101,12 +102,21 @@ def write_values(stream_to_write):
 def sync(config, state, catalog):
     signal(SIGPIPE,SIG_DFL)
     LOGGER.info('Syncing selected streams')
+    LOGGER.info(catalog)
     selected_stream_ids = get_selected_streams(catalog)
     tenant_id = config.get('tenant_id')
     LOGGER.info(selected_stream_ids)
 
     if Record.RECOMMENDATIONS.value in selected_stream_ids:
         recommendations_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.RECOMMENDATIONS.value, catalog['streams']))
+        try:
+           replication_method = recommendations_stream['replication_method']
+           bookmark_column = recommendations_stream['replication_key']
+        except KeyError as e:
+           LOGGER.info('I got a KeyError - reason "%s"' % str(e))
+           bookmark_column = 'id'
+        is_sorted = True  
+       
         write_values(recommendations_stream)
         
 
@@ -115,7 +125,8 @@ def sync(config, state, catalog):
         write_values(scores_stream)
 
     LOGGER.info('Fetching product recommendations')
-    model_with_recommendations = RecommendationsClient(config).fetch_recommendations()
+    model_with_recommendations = RecommendationsClient(config).fetch_recommendations(state, bookmark_column)
+    max_bookmark = None
     for model_recommendation in model_with_recommendations:
         LOGGER.info('Syncing recommendation with id')
         LOGGER.info(model_recommendation.get('id'))
@@ -132,7 +143,7 @@ def sync(config, state, catalog):
         # model recommendation record builder returns a recommendation record, if from
         # which is needed for building corresponding product score records
         recommendation_record = build_record_handler(Record.RECOMMENDATIONS).generate(
-                model_recommendation, tenant_id=tenant_id, config=config)
+                model_recommendation, tenant_id=tenant_id, config=config, state=state)
         if isinstance(recommendation_record, dict):
                 LOGGER.info('recommendation_record')
         LOGGER.info(recommendation_record)
@@ -147,6 +158,25 @@ def sync(config, state, catalog):
                 recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
         for product_score_record in product_score_records:
             singer.write_record(Record.SCORES.value, product_score_record) 
+        if bookmark_column:
+            if is_sorted:
+                # update bookmark to latest value
+                LOGGER.info('writing bookmark sorted')
+                LOGGER.info(model_recommendation[bookmark_column])
+                state = singer.write_bookmark(state,recommendations_stream['tap_stream_id'],bookmark_column,model_recommendation[bookmark_column])
+                singer.write_state(state)
+                LOGGER.info(state)
+            else:
+                # if data unsorted, save max value until end of writes
+                max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
+    if bookmark_column and not is_sorted:
+        LOGGER.info('writing bookmark non-sorted')
+        state = singer.write_bookmark(
+            state,
+            recommendations_stream['tap_stream_id'],
+            bookmark_column,
+            max_bookmark)
+        singer.write_state(state)
 
 @utils.handle_top_exception(LOGGER)
 def main():
@@ -161,7 +191,7 @@ def main():
     # Otherwise run in sync mode
     else:
         if args.catalog:
-            catalog = args.catalog
+            catalog = args.catalog.to_dict()
         else:
             catalog = discover()
 

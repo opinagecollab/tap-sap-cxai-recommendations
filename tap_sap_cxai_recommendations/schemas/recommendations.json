@@ -30,6 +30,10 @@
           "type": ["null", "string"],
           "format":"datetime"
         },
+        "modified_date": {
+          "type": ["null", "string"],
+          "format":"datetime"
+        },
         "insert_update_flag": {
           "type": ["null", "string"]
         }     

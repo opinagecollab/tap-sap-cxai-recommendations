@@ -1,9 +1,9 @@
 
 {
-    "tenant_id": "t3_CXAI",
+    "tenant_id": "t2",
     "api_scheme": "https",
     "api_base_url": "fastapi.cxai.dev.sap",
     "api_base_path":"/api/v1/recommendations",
-    "ui_scheme":"https",
-    "ui_base_url": "fastapi.cxai.dev.sap"
+    "param_skip":"20",
+    "param_take": "20"
 }

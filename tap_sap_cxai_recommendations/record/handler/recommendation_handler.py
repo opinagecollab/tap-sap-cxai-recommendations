@@ -15,13 +15,14 @@ class RecommendationHandler(BaseHandler):
         LOGGER.info('recommendation',recommendation)
         return {
             'tenant_id': options.get('tenant_id'),
-            #TODO: create a sequence utility to generate these IDs
             'user_id': recommendation.get('user_id'),
             'sku': recommendation.get('item_id'),
             'model': recommendation.get('model'),
             'model_confidence': recommendation.get('model_confidence'),
             'id': recommendation.get('id'),
             'created_date': recommendation.get('created_date'),
+            #TODO: change to modified date when API passes that in future
+            'modified_date': recommendation.get('created_date'),
             'context': recommendation.get('context'),
             'recommendation_id': recommendation.get('user_id')+'|'+recommendation.get('item_id')+'|'+recommendation.get('model'),
             'insert_update_flag': '1'

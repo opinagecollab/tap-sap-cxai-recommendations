@@ -1,0 +1,141 @@
+{
+    "streams": [
+        {
+            "stream": "recommendations",
+            "tap_stream_id": "recommendations",
+            "schema": {
+                "type": ["null", "object"],
+                "properties": {
+                    "tenant_id": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": [
+                            "null",
+                            "number"
+                        ]
+                    },
+                    "recommendation_id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "sku": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "context": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "model": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "model_confidence": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_date": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "format": "datetime"
+                    },
+                    "modified_date": {
+          				"type": [
+          					"null", 
+          					"string"
+          				],
+          				"format":"datetime"
+       			    },
+                    "insert_update_flag": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "additionalProperties": false
+            },
+            "metadata": [
+                {
+                    "metadata": {
+                        "inclusion": "automatic",	
+                        "selected": true,
+                        "schema-name": "recommendations"
+                    },
+                    "breadcrumb": []	
+                }
+            ],
+            "key_properties": [
+                "recommendation_id",
+                "tenant_id"
+            ],
+            "replication_key":"created_date",
+            "replication_method": "incremental"
+        },
+        {
+            "stream": "product_scores",
+            "tap_stream_id": "product_scores",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "tenant_id": {
+                        "type": "string"
+                    },
+                    "recommendation_id": {
+                        "type": "string"
+                    },
+                    "sku": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": [
+                            "null",
+                            "number"
+                        ]
+                    },
+                    "insert_update_flag": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "tenant_id",
+                    "recommendation_id",
+                    "sku"
+                ],
+                "additionalProperties": false
+            },
+            "metadata": [
+                {
+                    "metadata": {
+                        "selected": true
+                    },
+                    "breadcrumb": []
+                }
+            ],
+            "key_properties": [
+                "recommendation_id",
+                "sku",
+                "tenant_id"
+            ]
+        }
+    ]
+}
