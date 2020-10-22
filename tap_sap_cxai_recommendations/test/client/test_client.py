@@ -4,7 +4,7 @@ import json
 import warnings
 
 from tap_sap_cxai_recommendations.client import RecommendationsClient
-from tap_sap_cxai_recommendations.resources import recommendations_record, product_scores_list
+from tap_sap_cxai_recommendations.resources import recommendation_records, product_scores_list
 
 
 class TestRecommendationsClient(unittest.TestCase):
@@ -30,17 +30,8 @@ class TestRecommendationsClient(unittest.TestCase):
         skip = 0
         httpretty.register_uri(
             httpretty.GET,
-            self.client.search_url.format(initial_page),
-            body=json.dumps(product_search_list))
-
-        product_list = []
-        for sku in product_details:
-            httpretty.register_uri(
-                httpretty.GET,
-                self.client.recommendations_url.format(sku),
-                body=json.dumps(product_details[sku]))
-
-            product_list.append(product_details[sku])
+            self.client.recommendations_url.format(initial_page),
+            body=json.dumps(recommendation_records))
 
         result = self.client.fetch_recommendations()
-        self.assertEqual(product_list, result)
+        self.assertEqual(recommendation_records, result)

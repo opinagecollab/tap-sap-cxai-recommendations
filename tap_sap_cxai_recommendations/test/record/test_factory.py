@@ -1,15 +1,13 @@
 import unittest
 
-from tap_sap_commerce_cloud.record.factory import build_record_handler
-from tap_sap_commerce_cloud.record.record import Record
+from tap_sap_cxai_recommendations.record.factory import build_record_handler
+from tap_sap_cxai_recommendations.record.record import Record
 
-from tap_sap_commerce_cloud.record.handler.category_handler import CategoryHandler
-from tap_sap_commerce_cloud.record.handler.customer_specific_price_handler import CustomerSpecificPriceHandler
-from tap_sap_commerce_cloud.record.handler.price_point_handler import PricePointHandler
-from tap_sap_commerce_cloud.record.handler.product_handler import ProductHandler
-from tap_sap_commerce_cloud.record.handler.product_spec_handler import ProductSpecHandler
-from tap_sap_commerce_cloud.record.handler.spec_handler import SpecHandler
-from tap_sap_commerce_cloud.record.handler.stock_point_handler import StockPointHandler
+from tap_sap_cxai_recommendations.record.handler.recommendation_handler import RecommendationsHandler
+from tap_sap_cxai_recommendations.record.handler.product_score_handler import ProductScoresHandler
+from tap_sap_cxai_recommendations.record.handler.user_handler import UsersHandler
+from tap_sap_cxai_recommendations.record.handler.recommendation_model_handler import RecommendationModelsHandler
+
 
 
 class TestFactory(unittest.TestCase):
@@ -17,8 +15,16 @@ class TestFactory(unittest.TestCase):
 
     def test_should_build_recommendation_handler(self):
         recommendation_handler = build_record_handler(Record.RECOMMENDATIONS)
-        self.assertTrue(isinstance(recommendation, RecommendationsHandler))
+        self.assertTrue(isinstance(recommendation, RecommendationHandler))
 
     def test_should_build_scores_handler(self):
-        stock_point_handler = build_record_handler(Record.STOCK_POINT)
-        self.assertTrue(isinstance(stock_point_handler, StockPointHandler))
+        product_score_handler = build_record_handler(Record.SCORES)
+        self.assertTrue(isinstance(product_score_handler, ProductScoresHandler))
+
+    def test_should_build_users_handler(self):
+        user_handler = build_record_handler(Record.USERS)
+        self.assertTrue(isinstance(user_handler, UserHandler))
+
+        def test_should_build_models_handler(self):
+        recommendation_model_handler = build_record_handler(Record.RECOMMENDATION_MODELS)
+        self.assertTrue(isinstance(recommendation_model_handler, RecommendationModelHandler))
