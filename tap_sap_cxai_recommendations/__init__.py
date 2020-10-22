@@ -62,6 +62,16 @@ def discover():
           stream_key_properties.append('recommendation_id')
           stream_key_properties.append('tenant_id')
 
+      if schema_name == Record.USERS.value:
+          stream_metadata.append(is_selected)
+          stream_key_properties.append('id')
+          stream_key_properties.append('tenant_id')
+
+      if schema_name == Record.RECOMMENDATION_MODELS.value:
+          stream_metadata.append(is_selected)
+          stream_key_properties.append('id')
+          stream_key_properties.append('tenant_id')
+
       catalog_entry = {
             'stream': schema_name,
             'tap_stream_id': schema_name,
@@ -124,7 +134,17 @@ def sync(config, state, catalog):
         scores_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.SCORES.value, catalog['streams']))
         write_values(scores_stream)
 
+    #TODO: for now, write User and Model master from recommendation record - but in future these tables will be populated by another actual source of truth
+    if Record.USERS.value in selected_stream_ids:
+        users_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.USERS.value, catalog['streams']))
+        write_values(users_stream)
+
+    if Record.RECOMMENDATION_MODELS.value in selected_stream_ids:
+        recommendation_models_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.RECOMMENDATION_MODELS.value, catalog['streams']))
+        write_values(recommendation_models_stream)
+
     LOGGER.info('Fetching product recommendations')
+    # Invoke Client to fetch recommendations
     model_with_recommendations = RecommendationsClient(config).fetch_recommendations(state, bookmark_column)
     max_bookmark = None
     for model_recommendation in model_with_recommendations:
@@ -137,27 +157,41 @@ def sync(config, state, catalog):
 
         if len(model_recommendation.get('recommendations', [])) == 0:
             LOGGER.info('Model has no recommendations! Skipping ...')
-            continue
+            continue   
 
-        recommendations = model_recommendation.get('recommendations')         
+        # Write user and model
+        user_id = model_recommendation.get('user_id')
+        if user_id is not None:
+          user_record = build_record_handler(Record.USERS).generate(user_id, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.USERS.value, user_record)  
+
+        model = model_recommendation.get('model')
+        if model is not None:
+          model_record = build_record_handler(Record.RECOMMENDATION_MODELS).generate(model, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.RECOMMENDATION_MODELS.value, model_record)       
+
         # model recommendation record builder returns a recommendation record, if from
         # which is needed for building corresponding product score records
         recommendation_record = build_record_handler(Record.RECOMMENDATIONS).generate(
-                model_recommendation, tenant_id=tenant_id, config=config, state=state)
-        if isinstance(recommendation_record, dict):
-                LOGGER.info('recommendation_record')
-        LOGGER.info(recommendation_record)
+                model_recommendation, model_id = model_record.get('id'), tenant_id=tenant_id, config=config, state=state)
+
+        LOGGER.info('recommendation_record', recommendation_record)
         try:
           singer.write_record(Record.RECOMMENDATIONS.value, recommendation_record)  
         except json.JSONDecodeError as jex:
           LOGGER.error ('JSONDecodeError caught {}', jex)
       
         recommendation_id = recommendation_record.get('recommendation_id')
+        recommendations = model_recommendation.get('recommendations') 
+
         # score builder returns a list of product score records corresponding to recommendation id
         product_score_records = build_record_handler(Record.SCORES).generate(
                 recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
         for product_score_record in product_score_records:
             singer.write_record(Record.SCORES.value, product_score_record) 
+
+        
+
         if bookmark_column:
             if is_sorted:
                 # update bookmark to latest value

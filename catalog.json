@@ -136,6 +136,76 @@
                 "sku",
                 "tenant_id"
             ]
+        },
+        {
+            "stream": "users",
+            "tap_stream_id": "users",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "tenant_id": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "tenant_id",
+                    "id"
+                ],
+                "additionalProperties": false
+            },
+            "metadata": [
+                {
+                    "metadata": {
+                        "selected": true
+                    },
+                    "breadcrumb": []
+                }
+            ],
+            "key_properties": [
+                "id",
+                "tenant_id"
+            ]
+        },
+        {
+            "stream": "models",
+            "tap_stream_id": "models",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "tenant_id": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "tenant_id",
+                    "id"
+                ],
+                "additionalProperties": false
+            },
+            "metadata": [
+                {
+                    "metadata": {
+                        "selected": true
+                    },
+                    "breadcrumb": []
+                }
+            ],
+            "key_properties": [
+                "id",
+                "tenant_id"
+            ]
         }
     ]
 }

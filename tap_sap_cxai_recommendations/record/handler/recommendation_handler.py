@@ -17,7 +17,7 @@ class RecommendationHandler(BaseHandler):
             'tenant_id': options.get('tenant_id'),
             'user_id': recommendation.get('user_id'),
             'sku': recommendation.get('item_id'),
-            'model': recommendation.get('model'),
+            'model': options.get('model_id'),
             'model_confidence': recommendation.get('model_confidence'),
             'id': recommendation.get('id'),
             'created_date': recommendation.get('created_date'),
