@@ -20,6 +20,9 @@
         "context": {
           "type": ["null", "string"]
         },
+        "model_id": {
+          "type": ["null", "string"]
+        },
         "model": {
           "type": ["null", "string"]
         },

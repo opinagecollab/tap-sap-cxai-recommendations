@@ -36,6 +36,12 @@
                             "string"
                         ]
                     },
+                    "model_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
                     "model": {
                         "type": [
                             "null",
@@ -173,8 +179,8 @@
             ]
         },
         {
-            "stream": "models",
-            "tap_stream_id": "models",
+            "stream": "recommendation_models",
+            "tap_stream_id": "recommendation_models",
             "schema": {
                 "type": "object",
                 "properties": {

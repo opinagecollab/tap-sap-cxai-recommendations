@@ -13,9 +13,7 @@ class ProductScoresHandler(BaseHandler):
         LOGGER.setLevel(level='DEBUG')
         scores = []
         productscoresarray = ast.literal_eval(productscores)
-        LOGGER.info(productscoresarray)
         for productscore in productscoresarray:
-            LOGGER.info(productscore)
             score = {
             'tenant_id': options.get('tenant_id'),
             'recommendation_id': options.get('recommendation_id'),

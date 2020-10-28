@@ -144,9 +144,11 @@ def sync(config, state, catalog):
         write_values(recommendation_models_stream)
 
     LOGGER.info('Fetching product recommendations')
+    user_ids = []
+    models = []
     # Invoke Client to fetch recommendations
     model_with_recommendations = RecommendationsClient(config).fetch_recommendations(state, bookmark_column)
-    max_bookmark = None
+    max_bookmark = ''
     for model_recommendation in model_with_recommendations:
         LOGGER.info('Syncing recommendation with id')
         LOGGER.info(model_recommendation.get('id'))
@@ -159,52 +161,55 @@ def sync(config, state, catalog):
             LOGGER.info('Model has no recommendations! Skipping ...')
             continue   
 
-        # Write user and model
-        user_id = model_recommendation.get('user_id')
-        if user_id is not None:
-          user_record = build_record_handler(Record.USERS).generate(user_id, tenant_id=tenant_id, config=config)
-          singer.write_record(Record.USERS.value, user_record)  
-
-        model = model_recommendation.get('model')
-        if model is not None:
-          model_record = build_record_handler(Record.RECOMMENDATION_MODELS).generate(model, tenant_id=tenant_id, config=config)
-          singer.write_record(Record.RECOMMENDATION_MODELS.value, model_record)       
-
         # model recommendation record builder returns a recommendation record, if from
         # which is needed for building corresponding product score records
         recommendation_record = build_record_handler(Record.RECOMMENDATIONS).generate(
-                model_recommendation, model_id = model_record.get('id'), tenant_id=tenant_id, config=config, state=state)
+                model_recommendation, model_id = '', tenant_id=tenant_id, config=config, state=state)
 
-        LOGGER.info('recommendation_record', recommendation_record)
-        try:
-          singer.write_record(Record.RECOMMENDATIONS.value, recommendation_record)  
-        except json.JSONDecodeError as jex:
-          LOGGER.error ('JSONDecodeError caught {}', jex)
+        LOGGER.info('recommendation_record', recommendation_record)        
+        singer.write_record(Record.RECOMMENDATIONS.value, recommendation_record)  
       
         recommendation_id = recommendation_record.get('recommendation_id')
+        LOGGER.info(recommendation_id)
+
+       
         recommendations = model_recommendation.get('recommendations') 
 
         # score builder returns a list of product score records corresponding to recommendation id
         product_score_records = build_record_handler(Record.SCORES).generate(
                 recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
         for product_score_record in product_score_records:
-            singer.write_record(Record.SCORES.value, product_score_record) 
-
+            try:
+              singer.write_record(Record.SCORES.value, product_score_record) 
+            except IntegrityError as e:
+              LOGGER.error("Error: {}".format(e))
         
 
+        user_id = recommendation_record.get('user_id')
+        if user_id and user_id not in user_ids:
+          user_ids.append(user_id)
+        model = recommendation_record.get('model')
+        if model and model not in models:
+          models.append(model)           
+
         if bookmark_column:
-            if is_sorted:
-                # update bookmark to latest value
-                LOGGER.info('writing bookmark sorted')
-                LOGGER.info(model_recommendation[bookmark_column])
-                state = singer.write_bookmark(state,recommendations_stream['tap_stream_id'],bookmark_column,model_recommendation[bookmark_column])
-                singer.write_state(state)
-                LOGGER.info(state)
-            else:
-                # if data unsorted, save max value until end of writes
-                max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
-    if bookmark_column and not is_sorted:
-        LOGGER.info('writing bookmark non-sorted')
+          # save max value until end of writes
+          max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
+
+     # Write user and model
+    for user_id in user_ids:
+        if user_id is not None:
+          user_record = build_record_handler(Record.USERS).generate(user_id, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.USERS.value, user_record)  
+
+
+    for model in models:
+        if model is not None:
+          model_record = build_record_handler(Record.RECOMMENDATION_MODELS).generate(model, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.RECOMMENDATION_MODELS.value, model_record)   
+
+    if max_bookmark:
+        LOGGER.info('writing bookmark: %s',max_bookmark)
         state = singer.write_bookmark(
             state,
             recommendations_stream['tap_stream_id'],

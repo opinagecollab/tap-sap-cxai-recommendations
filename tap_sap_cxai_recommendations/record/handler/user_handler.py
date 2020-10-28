@@ -12,7 +12,6 @@ class UserHandler(BaseHandler):
     def generate(self, user_id, **options):
         LOGGER = singer.get_logger()
         LOGGER.setLevel(level='DEBUG')
-        LOGGER.info('user',user_id)
         return {
             'tenant_id': options.get('tenant_id'),
             'id': user_id,
