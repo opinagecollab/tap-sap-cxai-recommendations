@@ -51,7 +51,7 @@
                     "model_confidence": {
                         "type": [
                             "null",
-                            "string"
+                            "number"
                         ]
                     },
                     "created_date": {

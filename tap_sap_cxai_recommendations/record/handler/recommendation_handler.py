@@ -13,13 +13,19 @@ class RecommendationHandler(BaseHandler):
         LOGGER = singer.get_logger()
         LOGGER.setLevel(level='DEBUG')
         LOGGER.info('recommendation',recommendation)
+        model_confidence = recommendation.get('model_confidence')
+        if recommendation.get('model_confidence') is None:
+            model_confidence = 0
+        else:
+            model_confidence = float(recommendation.get('model_confidence'))
+
         return {
             'tenant_id': options.get('tenant_id'),
             'user_id': recommendation.get('user_id'),
             'sku': recommendation.get('item_id'),
             'model': recommendation.get('model'),
             'model_id': options.get('model_id'),
-            'model_confidence': recommendation.get('model_confidence'),
+            'model_confidence': model_confidence,
             'id': recommendation.get('id'),
             'created_date': recommendation.get('created_date'),
             #TODO: change to modified date when API passes that in future
