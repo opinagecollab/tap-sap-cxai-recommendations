@@ -1,0 +1,20 @@
+
+    {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+          "tenant_id",
+          "id"
+      ],             
+      "additionalProperties": false
+    }

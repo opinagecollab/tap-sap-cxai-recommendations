@@ -1,0 +1,9 @@
+
+{
+    "tenant_id": "t2",
+    "api_scheme": "https",
+    "api_base_url": "fastapi.cxai.dev.sap",
+    "api_base_path":"/api/v1/recommendations",
+    "param_skip":"900",
+    "param_take": "900"
+}

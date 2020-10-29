@@ -1,0 +1,27 @@
+
+    {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        },
+        "recommendation_id": {
+          "type": "string"
+        },
+        "sku": {
+          "type": "string"
+        },
+        "score": {
+          "type": ["null", "number"]
+        },
+        "insert_update_flag": {
+          "type": ["null", "string"]
+        }
+      },
+      "required": [
+          "tenant_id",
+          "recommendation_id",
+          "sku"
+      ],             
+      "additionalProperties": false
+    }
