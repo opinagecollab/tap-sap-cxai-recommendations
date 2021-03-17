@@ -148,7 +148,7 @@ def sync(config, state, catalog):
     models = []
     # Invoke Client to fetch recommendations
     model_with_recommendations = RecommendationsClient(config).fetch_recommendations(state, bookmark_column)
-    max_bookmark = ''
+    max_bookmark = None
     for model_recommendation in model_with_recommendations:
         LOGGER.info('Syncing recommendation with id')
         LOGGER.info(model_recommendation.get('id'))
@@ -193,8 +193,11 @@ def sync(config, state, catalog):
           models.append(model)           
 
         if bookmark_column:
-          # save max value until end of writes
-          max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
+          # save max value until end of write
+          if max_bookmark is None:
+              max_bookmark = model_recommendation[bookmark_column]
+          else:
+              max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
 
      # Write user and model
     for user_id in user_ids:
