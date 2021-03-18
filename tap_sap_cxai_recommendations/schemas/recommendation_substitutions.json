@@ -1,0 +1,22 @@
+{
+    "type": "object",
+    "properties": {
+        "tenant_id": {
+            "type": "string"
+        },
+        "sku": {
+            "type": "string"
+        },
+        "substitute_sku": {
+            "type": "string"
+        },
+        "substitution_order": {
+            "type": "number"
+        }
+    },
+    "required": [
+        "tenant_id",
+        "sku"
+    ],
+    "additionalProperties": false
+}

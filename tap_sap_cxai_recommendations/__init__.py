@@ -22,67 +22,78 @@ REQUIRED_CONFIG_KEYS = [
 LOGGER = singer.get_logger()
 LOGGER.setLevel(level='DEBUG')
 
+
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
 
 def load_schemas():
-  schemas = {}
-  LOGGER.info('loading schemas')
-  for filename in os.listdir(get_abs_path('schemas')):
-      path = get_abs_path('schemas') + '/' + filename
-      LOGGER.info(path)
-      file_raw = filename.replace('.json', '')
-      with open(path) as file:
-          schemas[file_raw] = json.load(file)
-  return schemas
+    schemas = {}
+    LOGGER.info('loading schemas')
+    for filename in os.listdir(get_abs_path('schemas')):
+        path = get_abs_path('schemas') + '/' + filename
+        LOGGER.info(path)
+        file_raw = filename.replace('.json', '')
+        with open(path) as file:
+            schemas[file_raw] = json.load(file)
+    return schemas
+
 
 def discover():
-  raw_schemas = load_schemas()
-  streams = []
-  for schema_name, schema in raw_schemas.items():
-      stream_metadata = []
-      stream_key_properties = []
-      is_selected = \
-          {
-              'metadata': {
-                  'selected': True
-              },
-              'breadcrumb': []
-          }
+    raw_schemas = load_schemas()
+    streams = []
+    for schema_name, schema in raw_schemas.items():
+        stream_metadata = []
+        stream_key_properties = []
+        is_selected = \
+            {
+                'metadata': {
+                    'selected': True
+                },
+                'breadcrumb': []
+            }
 
-      if schema_name == Record.SCORES.value:
-          stream_metadata.append(is_selected)
-          stream_key_properties.append('recommendation_id')
-          stream_key_properties.append('sku')
-          stream_key_properties.append('tenant_id')
+        if schema_name == Record.SCORES.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('recommendation_id')
+            stream_key_properties.append('sku')
+            stream_key_properties.append('tenant_id')
 
-      if schema_name == Record.RECOMMENDATIONS.value:
-          stream_metadata.append(is_selected)
-          stream_key_properties.append('recommendation_id')
-          stream_key_properties.append('tenant_id')
+        if schema_name == Record.RECOMMENDATIONS.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('recommendation_id')
+            stream_key_properties.append('tenant_id')
 
-      if schema_name == Record.USERS.value:
-          stream_metadata.append(is_selected)
-          stream_key_properties.append('id')
-          stream_key_properties.append('tenant_id')
+        if schema_name == Record.USERS.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('id')
+            stream_key_properties.append('tenant_id')
 
-      if schema_name == Record.RECOMMENDATION_MODELS.value:
-          stream_metadata.append(is_selected)
-          stream_key_properties.append('id')
-          stream_key_properties.append('tenant_id')
+        if schema_name == Record.RECOMMENDATION_MODELS.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('id')
+            stream_key_properties.append('tenant_id')
 
-      catalog_entry = {
-            'stream': schema_name,
-            'tap_stream_id': schema_name,
-            'schema': schema,
-            'metadata': stream_metadata,
-            'key_properties': stream_key_properties
-      }
-      streams.append(catalog_entry)        
-  return {
-        'streams': streams
-  }
+        if schema_name == Record.RECOMMENDATION_SUBSTITUTIONS.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('tenant_id')
+            stream_key_properties.append('sku')
+            stream_key_properties.append('substitute_sku')
+
+        if schema_name == Record.PAGE_TYPES.value:
+            stream_metadata.append(is_selected)
+            stream_key_properties.append('tenant_id')
+            stream_key_properties.append('id')
+
+        catalog_entry = {
+                'stream': schema_name,
+                'tap_stream_id': schema_name,
+                'schema': schema,
+                'metadata': stream_metadata,
+                'key_properties': stream_key_properties
+        }
+        streams.append(catalog_entry)        
+    return {'streams': streams}
 
 def get_selected_streams(catalog):
     """
@@ -143,9 +154,19 @@ def sync(config, state, catalog):
         recommendation_models_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.RECOMMENDATION_MODELS.value, catalog['streams']))
         write_values(recommendation_models_stream)
 
-    LOGGER.info('Fetching product recommendations')
+    if Record.RECOMMENDATION_SUBSTITUTIONS.value in selected_stream_ids:
+        recommendation_substitutions_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.RECOMMENDATION_SUBSTITUTIONS.value, catalog['streams']))
+        write_values(recommendation_substitutions_stream)
+
+    if Record.PAGE_TYPES.value in selected_stream_ids:
+        page_types_stream = next(filter(lambda stream: stream['tap_stream_id'] == Record.PAGE_TYPES.value, catalog['streams']))
+        write_values(page_types_stream)
+
+    LOGGER.info('Fetching Product Recommendations')
     user_ids = []
     models = []
+    product_substitution_skus = []
+    product_substitution_records = []
     # Invoke Client to fetch recommendations
     model_with_recommendations = RecommendationsClient(config).fetch_recommendations(state, bookmark_column)
     max_bookmark = None
@@ -174,15 +195,24 @@ def sync(config, state, catalog):
 
        
         recommendations = model_recommendation.get('recommendations') 
+        
+        # score builder returns a list of product score records corresponding to recommendation id along with product substitution records
+        product_score_records, substitution_records, product_substitution_skus = build_record_handler(Record.SCORES).generate(
+                recommendations, product_substitution_skus, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
 
-        # score builder returns a list of product score records corresponding to recommendation id
-        product_score_records = build_record_handler(Record.SCORES).generate(
-                recommendations, tenant_id=tenant_id, config=config,recommendation_id = recommendation_id, id_from_api = id)    
+        
+
         for product_score_record in product_score_records:
             try:
               singer.write_record(Record.SCORES.value, product_score_record) 
             except IntegrityError as e:
               LOGGER.error("Error: {}".format(e))
+
+        # Write recommendation substitution
+        if substitution_records:
+            product_substitution_records.extend(substitution_records)
+            for product_substitution_record in substitution_records:
+                singer.write_record(Record.RECOMMENDATION_SUBSTITUTIONS.value, product_substitution_record)
         
 
         user_id = recommendation_record.get('user_id')
@@ -199,18 +229,6 @@ def sync(config, state, catalog):
           else:
               max_bookmark = max(max_bookmark, model_recommendation[bookmark_column])
 
-     # Write user and model
-    for user_id in user_ids:
-        if user_id is not None:
-          user_record = build_record_handler(Record.USERS).generate(user_id, tenant_id=tenant_id, config=config)
-          singer.write_record(Record.USERS.value, user_record)  
-
-
-    for model in models:
-        if model is not None:
-          model_record = build_record_handler(Record.RECOMMENDATION_MODELS).generate(model, tenant_id=tenant_id, config=config)
-          singer.write_record(Record.RECOMMENDATION_MODELS.value, model_record)   
-
     if max_bookmark:
         LOGGER.info('writing bookmark: %s',max_bookmark)
         state = singer.write_bookmark(
@@ -219,6 +237,35 @@ def sync(config, state, catalog):
             bookmark_column,
             max_bookmark)
         singer.write_state(state)
+
+    # Update other data which should ideally come separately but is part of this API
+    # Write user
+    for user_id in user_ids:
+        if user_id is not None:
+          user_record = build_record_handler(Record.USERS).generate(user_id, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.USERS.value, user_record)  
+
+    # Write recommendation model
+    for model in models:
+        if model is not None:
+          model_record = build_record_handler(Record.RECOMMENDATION_MODELS).generate(model, tenant_id=tenant_id, config=config)
+          singer.write_record(Record.RECOMMENDATION_MODELS.value, model_record)   
+
+    # # Write recommendation substitution
+    # for product_substitution_record in product_substitution_records:
+    #     singer.write_record(Record.RECOMMENDATION_SUBSTITUTIONS.value, product_substitution_record)
+
+    # Invoke Client to fetch Page Types
+    recommendation_page_types = RecommendationsClient(config).fetch_page_types()
+    if not recommendation_page_types:
+        LOGGER.warn("No page types fetched for recommendations")
+    else:
+        for page_type in recommendation_page_types:
+            pagetype_record = build_record_handler(Record.PAGE_TYPES).generate(
+                    page_type, tenant_id=tenant_id, config=config, state=state)
+
+            LOGGER.info('pagetype_record {}', pagetype_record)        
+            singer.write_record(Record.PAGE_TYPES.value, pagetype_record)  
 
 @utils.handle_top_exception(LOGGER)
 def main():
