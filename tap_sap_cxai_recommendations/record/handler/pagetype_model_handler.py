@@ -3,20 +3,18 @@ from tap_sap_cxai_recommendations.record.handler.decorators import Singleton
 import uuid
 import singer
 from datetime import datetime, date
-import hashlib
 
 
 
 @Singleton
-class RecommendationModelHandler(BaseHandler):
+class PageTypeModelHandler(BaseHandler):
 
-    def generate(self, model_name, **options):
+    def generate(self, pagetype_id, model_id, **options):
         LOGGER = singer.get_logger()
         LOGGER.setLevel(level='DEBUG')
-        LOGGER.info(hashlib.md5(model_name.strip().encode('utf-8')).hexdigest())
         return {
             'tenant_id': options.get('tenant_id'),
-            'id': model_name.lower().strip().replace(" ", "_"),
-            'name': model_name 
+            'pagetype_id': pagetype_id,
+            'model_id': model_id
         } 
             

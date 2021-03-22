@@ -4,6 +4,7 @@ from tap_sap_cxai_recommendations.record.handler.recommendation_handler import R
 from tap_sap_cxai_recommendations.record.handler.user_handler import UserHandler
 from tap_sap_cxai_recommendations.record.handler.recommendation_model_handler import RecommendationModelHandler
 from tap_sap_cxai_recommendations.record.handler.page_type_handler import PageTypeHandler
+from tap_sap_cxai_recommendations.record.handler.pagetype_model_handler import PageTypeModelHandler
 
 
 def build_record_handler(record: Record):
@@ -21,5 +22,8 @@ def build_record_handler(record: Record):
 
     if record == Record.PAGE_TYPES:
         return PageTypeHandler.get_instance()
+
+    if record == Record.PAGETYPE_MODEL:
+        return PageTypeModelHandler.get_instance()
 
     

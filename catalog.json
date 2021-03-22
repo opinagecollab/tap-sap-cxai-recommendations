@@ -9,6 +9,9 @@
                     "tenant_id": {
                         "type": "string"
                     },
+                    "source": {
+                        "type": "string"
+                    },
                     "id": {
                         "type": [
                             "null",
@@ -266,6 +269,9 @@
                     },
                     "name": {
                         "type": "string"
+                    },
+                    "source":{
+                        "type": "string"  
                     }
                 },
                 "required": [
@@ -285,6 +291,43 @@
             "key_properties": [
                 "tenant_id",
                 "id"
+            ]
+        },
+        {
+            "stream": "pagetype_model",
+            "tap_stream_id": "pagetype_model",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "tenant_id": {
+                        "type": "string"
+                    },
+                    "pagetype_id": {
+                        "type": "string"
+                    },
+                    "model_id": {
+                        "type": "string"
+                    }
+                },          
+                "required": [
+                    "tenant_id",
+                    "pagetype_id",
+                    "model_id"
+                ],
+                "additionalProperties": false
+            },
+            "metadata": [
+                {
+                    "metadata": {
+                        "selected": true
+                    },
+                    "breadcrumb": []
+                }
+            ],
+            "key_properties": [
+                "tenant_id",
+                "pagetype_id",
+                "model_id"
             ]
         }
     ]

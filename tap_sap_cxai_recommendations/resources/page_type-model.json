@@ -1,0 +1,76 @@
+{
+	"home": [
+		"History_based",
+		"SASRec",
+		"Periodic_TOP K",
+		"cart_based",
+		"similarity_based",
+		"popularity_based",
+		"substitution"
+	],
+	"category_listing_page": [
+		"popularity_based",
+		"substitution"
+	],
+	"category_product_listing_page": [
+		"popularity_based",
+		"substitution"
+	],
+	"search_listing_page": [
+		"popularity_based",
+		"SASRec",
+		"substitution"
+	],
+	"product_details_page": [
+		"cart_based",
+		"similarity_based",
+		"SASRec",
+		"popularity_based",
+		"substitution"
+	],
+	"cart_page": [
+		"cart_based",
+		"similarity_based",
+		"SASRec",
+		"popularity_based",
+		"substitution"
+	],
+	"checkout_page": [
+		"cart_based",
+		"similarity_based",
+		"SASRec",
+		"popularity_based",
+		"substitution"
+	],
+	"order_details_page": [
+		"cart_based",
+		"Periodic_TOP K",
+		"SASRec",
+		"popularity_based",
+		"similarity_based",
+		"substitution"
+	],
+	"order_listing_page": [
+		"SASRec",
+		"History_based",
+		"popularity_based",
+		"substitution"
+	],
+	"confirmation_page": [
+		"cart_based",
+		"similarity_based",
+		"SASRec",
+		"History_based",
+		"popularity_based",
+		"substitution"
+	],
+	"account_page": [
+		"cart_based",
+		"similarity_based",
+		"SASRec",
+		"History_based",
+		"popularity_based",
+		"Periodic_TOP K",
+		"substitution"
+	]
+}

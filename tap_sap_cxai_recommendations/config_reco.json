@@ -8,5 +8,8 @@
     "param_take": "900",
     "api_pagetypes_endpoint":"/page_types",
     "api_totalcount_endpoint":"/total_count",
-    "api_total_records_label":"total_records"
+    "api_total_records_label":"total_records",
+    "SUBSTITUTION_MODEL_ID":"substitution",
+    "source":"commerce",
+    "recommendation_source":"cxai"
 }

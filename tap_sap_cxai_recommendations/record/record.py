@@ -8,3 +8,4 @@ class Record(Enum):
     RECOMMENDATION_SUBSTITUTIONS = 'recommendation_substitutions'
     USERS = 'users'
     PAGE_TYPES = 'page_types'
+    PAGETYPE_MODEL = 'pagetype_model'

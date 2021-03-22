@@ -5,6 +5,9 @@
         "tenant_id": {
           "type": "string"
         },
+        "source": {
+          "type": "string"
+        },
         "id": {
           "type": ["null","number"]
         },
