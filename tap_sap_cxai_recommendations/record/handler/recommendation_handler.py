@@ -11,6 +11,8 @@ LOGGER.setLevel(level='DEBUG')
 class RecommendationHandler(BaseHandler):
 
     def generate(self, recommendation, **options):
+        config = options.get('config')
+        data_source = config.get('RECOMMENDATION_SOURCE')
         model_confidence = recommendation.get('model_confidence')
         if recommendation.get('model_confidence') is None:
             model_confidence = 0
@@ -38,6 +40,7 @@ class RecommendationHandler(BaseHandler):
             'modified_date': recommendation.get('created_date'),
             'context': recommendation.get('context'),
             'recommendation_id': user_id+'|'+sku+'|'+model,
-            'insert_update_flag': '1'
+            'insert_update_flag': '1',
+            'source': data_source
         } 
             

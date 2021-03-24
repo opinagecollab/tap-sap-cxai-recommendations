@@ -39,7 +39,7 @@ class ProductScoresHandler(BaseHandler):
             # Since product substitutions are part of product score records, fetch them here and only sync if they dont exist already
             if 'substitutions' in productscore:
                 substitution_products = productscore['substitutions']
-                if not product in all_product_substitution_skus_map:
+                if substitution_products and (not product in all_product_substitution_skus_map):
                         # product_substitution = {
                         # 'tenant_id': options.get('tenant_id'),
                         # 'sku': productscore['item_id'],

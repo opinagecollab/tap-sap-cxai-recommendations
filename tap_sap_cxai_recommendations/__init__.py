@@ -76,12 +76,12 @@ def discover():
 
         if schema_name == Record.PAGE_TYPES.value:
             stream_metadata.append(is_selected)
-            stream_key_properties.append('tenant_id')
+            stream_key_properties.append('domain')
             stream_key_properties.append('id')
 
         if schema_name == Record.PAGETYPE_MODEL.value:
             stream_metadata.append(is_selected)
-            stream_key_properties.append('tenant_id')
+            stream_key_properties.append('domain')
             stream_key_properties.append('pagetype_id')
             stream_key_properties.append('model_id')
 
@@ -263,7 +263,8 @@ def sync(config, state, catalog):
         model = config.get('SUBSTITUTION_MODEL_ID')
         if not model:
             model = 'substitution'
-        models.append(model)
+        if not model in models:
+            models.append(model)
         create_recommendation_records_for_substitutions(tenant_id, config, state, model, all_product_substitution_skus_map)
 
     # Write user

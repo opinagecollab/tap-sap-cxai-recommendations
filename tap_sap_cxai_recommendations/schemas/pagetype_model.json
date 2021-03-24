@@ -1,7 +1,7 @@
-{    
+{
     "type": "object",
     "properties": {
-        "tenant_id": {
+        "domain": {
             "type": "string"
         },
         "pagetype_id": {
@@ -12,7 +12,7 @@
         }
     },          
     "required": [
-        "tenant_id",
+        "domain",
         "pagetype_id",
         "model_id"
     ],

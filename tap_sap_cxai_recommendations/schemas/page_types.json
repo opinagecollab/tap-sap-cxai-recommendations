@@ -1,21 +1,18 @@
 {
     "type": "object",
     "properties": {
-        "tenant_id": {
-            "type": "string"
-        },
-        "source": {
-            "type": "string"
-        },
         "id": {
             "type": "string"
         },
         "name": {
             "type": "string"
+        },
+        "domain":{
+            "type": "string"  
         }
     },
     "required": [
-        "tenant_id",
+        "domain",
         "id"
     ],
     "additionalProperties": false

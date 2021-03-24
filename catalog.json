@@ -215,67 +215,25 @@
                 "id",
                 "tenant_id"
             ]
-        },
-        {
-            "stream": "recommendation_substitutions",
-            "tap_stream_id": "recommendation_substitutions",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "tenant_id": {
-                        "type": "string"
-                    },
-                    "sku": {
-                        "type": "string"
-                    },
-                    "substitute_sku": {
-                        "type": "string"
-                    },
-                    "substitution_order": {
-                        "type": "number"
-                    }
-                },
-                "required": [
-                    "tenant_id",
-                    "sku"
-                ],
-                "additionalProperties": false
-            },
-            "metadata": [
-                {
-                    "metadata": {
-                        "selected": true
-                    },
-                    "breadcrumb": []
-                }
-            ],
-            "key_properties": [
-                "tenant_id",
-                "sku",
-                "substitute_sku"
-            ]
-        },
+        },        
         {
             "stream": "page_types",
             "tap_stream_id": "page_types",
             "schema": {
                 "type": "object",
                 "properties": {
-                    "tenant_id": {
-                        "type": "string"
-                    },
                     "id": {
                         "type": "string"
                     },
                     "name": {
                         "type": "string"
                     },
-                    "source":{
+                    "domain":{
                         "type": "string"  
                     }
                 },
                 "required": [
-                    "tenant_id",
+                    "domain",
                     "id"
                 ],
                 "additionalProperties": false
@@ -289,7 +247,7 @@
                 }
             ],
             "key_properties": [
-                "tenant_id",
+                "domain",
                 "id"
             ]
         },
@@ -299,7 +257,7 @@
             "schema": {
                 "type": "object",
                 "properties": {
-                    "tenant_id": {
+                    "domain": {
                         "type": "string"
                     },
                     "pagetype_id": {
@@ -310,7 +268,7 @@
                     }
                 },          
                 "required": [
-                    "tenant_id",
+                    "domain",
                     "pagetype_id",
                     "model_id"
                 ],
@@ -325,7 +283,7 @@
                 }
             ],
             "key_properties": [
-                "tenant_id",
+                "domain",
                 "pagetype_id",
                 "model_id"
             ]
